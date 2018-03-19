@@ -1,0 +1,16 @@
+@(users: Seq[User])
+
+<body>
+
+
+<h2>add new a user here:</h2>
+
+
+<table>
+    <tr><th>firstName</th><th>lastName</th></tr>
+    @for(c <- users){
+    <tr><td>@c.firstName</td><td>@c.lastName</td></tr>
+    }
+</table>
+</body>
+</html>
