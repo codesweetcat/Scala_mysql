@@ -17,23 +17,16 @@ import slick.jdbc.JdbcProfile
 import slick.driver.MySQLDriver.api._
 
 import scala.concurrent.{ ExecutionContext, Future }
-
+import monix.eval.Task
 
 import play.api.libs.json._
 
 import models.User
 
-//case class User(id:Long, firstName: String, lastName: String)
-//
-////convert to json
-//object User {
-//  implicit val userFormat = Json.format[User]
-//}
-
 
 //use default DB
+@javax.inject.Singleton
 class UserRepository @Inject()(
-
   protected val dbConfigProvider: DatabaseConfigProvider,
   )(implicit ec: ExecutionContext)
   extends  HasDatabaseConfigProvider[JdbcProfile] {
@@ -41,23 +34,30 @@ class UserRepository @Inject()(
 
   import profile.api._
 
-  private val Users = TableQuery[UsersTable]
+  private val UsersSQL = TableQuery[UsersTable]
 
   //list of all users
   def listAllUsers: Future[Seq[User]] = {
-    db.run(Users.result)
+    db.run(UsersSQL.result)
   }
 
   //add a new user
   def insert(firstName: String, lastName:String): Future[User] = db.run {
-    (Users.map(p=>(p.firstName,p.lastName))
-      returning Users.map(_.id)
+    (UsersSQL.map(p=>(p.firstName,p.lastName))
+      returning UsersSQL.map(_.id)
       into((fullName,id) => User(id,fullName._1,fullName._2))
-
-
-
       )+=(firstName,lastName)
+  }
 
+  //find user by ID
+  def findById(id: Long): Future[Option[User]] =  db.run ( UsersSQL.filter(_.id === id).result.headOption)
+//delete user
+  def delete(userId:Long): Future[Unit] = {
+    db.run( UsersSQL.filter(_.id === userId ).delete).map(_=>())
+    }
+  //update user
+  def updateUser(userId:Long, fName: String, lName: String):Future[Unit] = {
+    db.run(UsersSQL.filter(_.id === userId).map(r => (r.firstName,r.lastName)).update(fName,lName)).map(_=>())
   }
 
 

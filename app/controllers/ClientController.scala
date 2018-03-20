@@ -39,8 +39,8 @@ class ClientController @Inject()(
   }
 
 
-
   val userForm :Form[UserForm] = Form(
+   //input and validation
     mapping(
       "firstName" -> text.verifying(nonEmpty),
       "lastName" -> text.verifying(nonEmpty)
@@ -60,6 +60,7 @@ def insertUser = Action.async { implicit request =>
      Future.successful(Ok(views.html.hello(errorForm)))
    },
    user => {
+     //with out id , using new form model.
      repo.insert(user.firstName,user.lastName).map { _ =>
        Redirect(routes.ClientController.index1)
          .flashing("success" -> "user.created")
@@ -67,6 +68,12 @@ def insertUser = Action.async { implicit request =>
    }
  )
 }
+
+//  def edit(id) = Action.async { implicit request =>
+//    repo.findById(id).flatMap {
+//      case Some(user) => repo.updateUser(user)
+//    }
+//  }
 
   /**
     * A REST endpoint that gets all the people as JSON.

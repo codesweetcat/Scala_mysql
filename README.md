@@ -28,7 +28,7 @@ id, first_name, last_name
 
 ## Routes:
 
--POST  /                controllers.ClientController.upload()
+-POST  /             controllers.ClientController.upload()
 
 -GET  /newuser          controllers.ClientController.index1
 
